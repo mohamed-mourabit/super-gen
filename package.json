@@ -1,0 +1,79 @@
+{
+  "name": "angular",
+  "version": "0.0.0",
+  "engines": {
+    "node": "12.16.3",
+    "npm": "6.14.4"
+  },
+  "config": {
+    "p1": {
+      "p2": "test2"
+    },
+    "p3": "test3"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "angular/*",
+      "excels/*.json"
+    ]
+  },
+  "scripts": {
+    "b0": "set IS_DEV=development && nodemon ./server.ts",
+    "b": "set IS_DEV=development && node --require ts-node/register ./server.ts",
+    "w": "set IS_DEV=development &&  && nodemon --ignore 'generation/*.ts' ./script.ts",
+    "s": "set IS_DEV=development && node --require ts-node/register ./script.ts",
+    "m": "set IS_DEV=development && node --require ts-node/register ./api/service/main.ts isdev",
+    "db": "cd database-scripte && nodemon database.script2.ts",
+    "ec0": "cd database-scripte && nodemon readExcelDepot.ts",
+    "ec": "cd database-scripte && nodemon readExcelEmplisseurs.ts",
+    "rc": "cd database-scripte && nodemon readRecursively.ts",
+    "didh": "cd didh && nodemon readExcelEpu.ts",
+    "ex": "nodemon readExcel.ts",
+    "f": "cd angular && ng serve",
+    "f-p": "cd angular && ng build --prod",
+    "b-p": "node --require ts-node/register ./copy.ts && tsc && node ./dist/server.js",
+    "start": "node ./dist/server.js",
+    "prod": "npm run f-p && npm run b-p",
+    "create-branch": "git branch new-one",
+    "move-to-branch": "git checkout new-one",
+    "move-to-master-branch": "git checkout",
+    "merge-branch-to-master-branch": "git merge new-one",
+    "init": "git init && git remote add origin https://github.com/dj-mourabit/super-gen.git",
+    "cmt": "git add . && git commit -m \"some changes\"",
+    "push": "git add . && git commit -m \"change name foler api to node\" && git push -u origin master"
+  },
+  "private": true,
+  "dependencies": {
+    "@types/lodash": "^4.14.153",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.11.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "fs-extra": "^9.0.0",
+    "lodash": "^4.17.15",
+    "moment": "^2.25.3",
+    "multer": "^1.4.2",
+    "read-excel-file": "^4.0.6",
+    "routing-controllers": "^0.8.1-alpha.2",
+    "tslib": "^1.10.0",
+    "typedi": "^0.8.0",
+    "typescript": "~3.7.5",
+    "zip-local": "^0.3.4"
+  },
+  "devDependencies": {
+    "@types/faker": "^4.1.12",
+    "@types/fs-extra": "^8.1.0",
+    "@types/mssql": "^6.0.1",
+    "@types/multer": "^1.4.3",
+    "@types/mysql": "^2.15.13",
+    "@types/node": "^12.11.1",
+    "@types/sqlite3": "^3.1.6",
+    "faker": "^4.1.0",
+    "mssql": "^6.2.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.2",
+    "sqlite3": "^4.1.1",
+    "ts-node": "~8.3.0",
+    "tslint": "~5.18.0"
+  }
+}

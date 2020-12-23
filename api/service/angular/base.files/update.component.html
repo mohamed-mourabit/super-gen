@@ -1,0 +1,22 @@
+<div class="dialog">
+  <h1 mat-dialog-title>
+    <mat-toolbar role="toolbar" class="task-header">
+      <span>{{title}}</span>
+    </mat-toolbar>
+    <mat-divider></mat-divider>
+  </h1>
+  <div class="content">
+    <mat-dialog-content>
+
+      <form [formGroup]="myForm">
+        {formFields}
+      </form>
+
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onNoClick()" type="button">Annuler</button>
+      <button mat-raised-button color="primary" *ngIf="!visualisation" (click)="onOkClick(myForm.value)" [disabled]="myForm.invalid" cdkFocusInitial>Enregistre</button>
+    </mat-dialog-actions>
+  </div>
+</div>

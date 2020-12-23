@@ -1,0 +1,276 @@
+<mat-toolbar style="background-color: #737373;" class="mat-elevation-z6">
+  <mat-toolbar-row>
+    <!-- <button mat-button (click)="snav.toggle()" routerLinkActive="active">
+      <mat-icon>menu</mat-icon>
+    </button> -->
+    <img src="assets/logo.png" alt="" srcset="" height="50px">
+    <p class="ml-4" style="font-size: 1.2em;">Système de suivi des activités</p>
+    <span class="example-spacer"></span>
+    <button mat-mini-fab color="">
+      <mat-icon>add_alert</mat-icon>
+    </button>
+    <button mat-button [matMenuTriggerFor]="beforeMenu" style="height: 60px;">
+      <div class="d-flex flex-column" style="line-height: 15px;">
+        <span style="font-weight: 400;">Said khaldoun</span>
+        <span style="color: rgb(204, 204, 204);">Administrateur</span>
+      </div>
+    </button>
+    <mat-menu #beforeMenu="matMenu" xPosition="before">
+      <button mat-menu-item [routerLink]="['/admin/compte']">Info Compte</button>
+      <button mat-menu-item (click)="disconnect()">Se déconnecter</button>
+    </mat-menu>
+  </mat-toolbar-row>
+</mat-toolbar>
+<mat-toolbar class="mat-elevation-z6" style="margin-top: 60px; background-color: #2A6EBB;min-height: 40px;">
+  <mat-toolbar-row>
+    <button mat-button (click)="snav.toggle()" routerLinkActive="active">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <p class="ml-4">{{breadcrumb.name}}</p>
+    <span class="example-spacer"></span>
+    <button mat-icon-button>
+      <mat-icon>home</mat-icon>
+    </button>
+
+  </mat-toolbar-row>
+</mat-toolbar>
+
+
+
+
+
+
+<mat-sidenav-container #sidenav class="example-sidenav-container" style=" z-index: 9;">
+  <mat-sidenav #snav [mode]="(!mobileQuery.matches) ? 'side' : 'over'" [opened]="opened" [fixedInViewport]="true"
+    fixedTopGap="110" style=" background: #393939;;">
+    <mat-nav-list class="list scroll" style="width: 380px; padding: 0;">
+      <!-- <div class="logo">
+        <img src="../assets/logo-ddh.jpg" alt="marit logo" width="210">
+      </div> -->
+
+      <!-- <mat-divider></mat-divider> -->
+      <!-- <div class="d-flex justify-content-center flex-wrap mt-2">
+        <button class="mybtn" mat-raised-button [matMenuTriggerFor]="beforeMenu2">
+          <mat-icon>graphic_eq</mat-icon> Energie
+        </button>
+
+        <mat-menu #beforeMenu2="matMenu" xPosition="before">
+          <button mat-menu-item [routerLink]="['/admin/table']">Suivi des stocks des PPL</button>
+        </mat-menu>
+        <button class="mybtn" mat-raised-button>
+          <mat-icon>linear_scale</mat-icon> Mine
+        </button>
+        <button class="mybtn" mat-raised-button>
+          <mat-icon>show_chart</mat-icon> Energie
+        </button>
+        <button class="mybtn" mat-raised-button>
+          <mat-icon>cloud</mat-icon> Mine
+        </button>
+      </div> -->
+      <mat-divider></mat-divider>
+      <mat-list-item style="background-color: #737373; color: white;" [routerLink]="['/admin/accueil']"
+        routerLinkActive="router-active">
+        <span style="margin-left: 10px;">Accueil</span>
+      </mat-list-item>
+
+      <mat-accordion>
+        <mat-divider></mat-divider>
+        <mat-expansion-panel [expanded]="false" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Commun
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-divider></mat-divider>
+          <mat-list-item>
+            <span>Traitement des requetes</span>
+          </mat-list-item>
+          <mat-list-item>
+            <span>Réunions, Commissions et Comités</span>
+          </mat-list-item>
+          <mat-list-item>
+            <span>Promotion sectorielle</span>
+          </mat-list-item>
+        </mat-expansion-panel>
+        <mat-divider></mat-divider>
+        <mat-expansion-panel [ngClass]="{'router-active': actuelRoute.includes('table') || actuelRoute.includes('form') }" [expanded]="true" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="menu">
+              Energie
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-divider></mat-divider>
+          <mat-list-item class="submenu" [routerLink]="['/admin/form']" routerLinkActive="router-active-submenu">
+            <span>Electricité</span>
+          </mat-list-item>
+          <!--  -->
+          <mat-expansion-panel  [ngClass]="{'router-active-submenu': actuelRoute.includes('ren') }" class="submenu" (opened)="panelOpenState = true"
+            (closed)="panelOpenState = false">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Energies renouvelables & Effiacité Energétique
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-divider></mat-divider>
+            <mat-list-item>
+              <span>Projets EnRs</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Projets d'EE</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Audits Energétiques Obligatoires</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Services énergétiques</span>
+            </mat-list-item>
+          </mat-expansion-panel>
+          <!--  -->
+          <mat-expansion-panel [ngClass]="{'router-active-submenu': actuelRoute.includes('table') }" class="submenu" (opened)="panelOpenState = true"
+            (closed)="panelOpenState = false">
+            <mat-expansion-panel-header >
+              <mat-panel-title>
+                Combustibles
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-divider></mat-divider>
+            <mat-list-item>
+              <span>Réalisation des projets d'investissement des produits pétroliers</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>L'état des stations de service</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Stocks  des PPL</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Importations des PPL</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Stocks des GPL</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Activité du centre emplisseur</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Importations des GPL</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Carburants pratiqués par les stations de distribution</span>
+            </mat-list-item>
+            <mat-list-item [routerLink]="['/admin/table']" routerLinkActive="router-active">
+              <span>Consommation PPL</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Traversées du GME par un ouvrage public</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Survenus sur le GME</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span>Raccordements d'autres gazoducs</span>
+            </mat-list-item>
+          </mat-expansion-panel>
+          <!--  -->
+        </mat-expansion-panel>
+        <mat-divider></mat-divider>
+        <mat-expansion-panel [expanded]="false" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Mines
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-divider></mat-divider>
+          <mat-list-item [routerLink]="['/admin/table']">
+            <span>...</span>
+          </mat-list-item>
+        </mat-expansion-panel>
+        <mat-divider></mat-divider>
+        <mat-expansion-panel [expanded]="false" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              CADETAF
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-divider></mat-divider>
+          <mat-list-item [routerLink]="['/admin/table']">
+            <span>...</span>
+          </mat-list-item>
+        </mat-expansion-panel>
+
+        <mat-divider></mat-divider>
+        <mat-expansion-panel [expanded]="false" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Contrôle
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-divider></mat-divider>
+          <mat-list-item [routerLink]="['/admin/table']">
+            <span>...</span>
+          </mat-list-item>
+        </mat-expansion-panel>
+
+        <mat-divider></mat-divider>
+        <mat-expansion-panel [expanded]="false" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Sécurité
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-divider></mat-divider>
+
+          <mat-list-item [routerLink]="['/admin/utilisateur']" routerLinkActive="router-active">
+            <span>Utilisateur</span>
+            <mat-divider></mat-divider>
+          </mat-list-item>
+
+          <mat-list-item [routerLink]="['/admin/profil']" routerLinkActive="router-active">
+            <span>Profil</span>
+            <mat-divider></mat-divider>
+          </mat-list-item>
+        </mat-expansion-panel>
+        <mat-divider></mat-divider>
+        <mat-expansion-panel [expanded]="false" (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Paramétrage
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-divider></mat-divider>
+          {navs}
+          {navs2}
+        </mat-expansion-panel>
+
+        
+
+
+      </mat-accordion>
+
+
+
+    </mat-nav-list>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+
+
+    <!-- <div style="margin: 65px auto 15px;" class="mybreadcrumb">
+        <div *ngFor="let s of patchRoute" class="items">
+          <a [routerLink]="['/home/connection']">{{ s !== '-1' ? s : 'nauveau'}}</a><mat-icon>navigate_next</mat-icon>
+        </div>
+      </div> -->
+    <main class="container-fluid" [@routeAnimations]="getState(o)" style="margin: 120px 0 20px;">
+      <router-outlet #o="outlet"></router-outlet>
+    </main>
+
+    <!-- <footer>
+        <mat-toolbar class="mt-2 text" color="primary">
+          <mat-toolbar-row style="height: 70px">
+            <span style="margin-left: auto; margin-right: auto;"> © {{ d | date:"dd/MMMM/yyyy" }} - Yaasin MOURABIT</span>
+          </mat-toolbar-row>
+        </mat-toolbar>
+      </footer> -->
+  </mat-sidenav-content>
+</mat-sidenav-container>
