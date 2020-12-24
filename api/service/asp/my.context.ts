@@ -20,7 +20,7 @@ export class MyContext {
         
         this.configs.classes.forEach(e => {
             const cap = this.helper.Cap(e.class);
-            const dbsets = cap.endsWith('s') ? `${cap}es` : `${cap}s`
+            let dbsets = cap.endsWith('s') ? `${cap}es` : cap.endsWith('y') ? `${cap.slice(0, -1)}ies` : `${cap}s`;
 
             dbSets += `public virtual DbSet<${this.helper.Cap(e.class)}> ${dbsets}s { get; set; } \r\n`;
 
@@ -28,7 +28,7 @@ export class MyContext {
 
 
             models = `using System;\r\nusing System.Collections.Generic;\r\nnamespace Models\r\n{\r\npublic partial class ${this.helper.Cap(e.class)} \r\n{`;
-            let l = [];
+            // let l = [];
 
             e.properties.forEach(p => {
                 const isTypePrimitive = this.helper.isTypePrimitive(p.type);
