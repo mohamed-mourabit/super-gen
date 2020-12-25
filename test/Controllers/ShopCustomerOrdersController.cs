@@ -17,53 +17,13 @@ namespace Controllers
     public class ShopCustomerOrdersController : SuperController<ShopCustomerOrder>
     {
         public ShopCustomerOrdersController(MyContext context ) : base(context) { }
-
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{date}/{customerId}/{shopId}/{orderId}")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string date, int customerId, int shopId, int orderId)
-        {
-            var q = _context.ShopCustomerOrders
-                .Where(e => date == "*" ? true : e.Date.ToLower().Contains(date.ToLower()))
-.Where(e => customerId == 0 ? true : e.CustomerId == customerId)
-.Where(e => shopId == 0 ? true : e.ShopId == shopId)
-.Where(e => orderId == 0 ? true : e.OrderId == orderId)
-
-                ;
-
-            int count = await q.CountAsync();
-
-            var list = await q.OrderByName<ShopCustomerOrder>(sortBy, sortDir == "desc")
-                .Skip(startIndex)
-                .Take(pageSize)
-                
-                .Select(e => new 
-{
-id = e.Id,
-date = e.Date,
-customerId = e.CustomerId,
-shopId = e.ShopId,
-orderId = e.OrderId,
-
-})
-                .ToListAsync()
-                ;
-
-            return Ok(new { list = list, count = count });
-        }
-
-
-        [HttpGet]
-        public override async Task<IActionResult> Get()
-        {
-            var list = await _context.ShopCustomerOrders.OrderByName<ShopCustomerOrder>("Id").ToListAsync();
-
-            return Ok(list);
-        }
-
         
         [HttpGet("{id}")]
-        public override async Task<IActionResult> Get(int id)
+        public override async Task<IActionResult> GetById(int id)
         {
-            var model = await _context.ShopCustomerOrders.FindAsync(id);
+            var model = await _context.ShopCustomerOrders.Where(e => e.Id == id)
+                .FirstOrDefaultAsync();
+                ;
 
             if (model == null)
             {
@@ -71,63 +31,6 @@ orderId = e.OrderId,
             }
 
             return Ok(model);
-        }
-
-        [HttpPost]
-        public override async Task<IActionResult> Add(ShopCustomerOrder model)
-        {
-            _context.ShopCustomerOrders.Add(model);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            return Ok(model);
-        }
-
-        
-        [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] ShopCustomerOrder model)
-        {
-            _context.Entry(model).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public override async Task<IActionResult> Delete(int id)
-        {
-            var model = await _context.ShopCustomerOrders.FindAsync(id);
-            if (model == null)
-            {
-                return NotFound();
-            }
-
-            _context.ShopCustomerOrders.Remove(model);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            return Ok();
         }
     }
 }

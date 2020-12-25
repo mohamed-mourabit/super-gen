@@ -91,11 +91,12 @@ export class ClassController {
 
             fse.writeFileSync(`${this.configs.aspFolder}/Controllers/${myModels}Controller.cs`, newContent);
             this.helper.progress(`>> ${this.helper.Cap(e.class)}Controller.cs done`);
+
+            // fse.copySync(`${source}/${SUPERCONTROLLER_CS}`, `${distination}/${SUPERCONTROLLER_CS}`)
         });
 
         // const distination = `${asp}/Controllers`;
         // fse.ensureDirSync(distination);
-        // fse.copySync(`${source}/${SUPERCONTROLLER_CS}`, `${distination}/${SUPERCONTROLLER_CS}`)
         // }
     }
 }

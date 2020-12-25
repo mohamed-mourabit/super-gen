@@ -44,7 +44,7 @@ namespace Controllers
 
         
         [HttpGet("{id}")]
-        public virtual async Task<IActionResult> Get(int id)
+        public virtual async Task<IActionResult> GetById(int id)
         {
             var model = await _context.Set<T>().FindAsync(id);
 
@@ -158,7 +158,7 @@ namespace Controllers
                 return BadRequest(new { message = ex.Message });
             }
 
-            return Ok();
+            return Ok(true);
         }
 
 

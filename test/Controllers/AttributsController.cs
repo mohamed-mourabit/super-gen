@@ -17,57 +17,13 @@ namespace Controllers
     public class AttributsController : SuperController<Attribut>
     {
         public AttributsController(MyContext context ) : base(context) { }
-
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{name}/{min}/{max}/{attributTypeId}/{categoryId}")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string name, int min, int max, int attributTypeId, int categoryId)
-        {
-            var q = _context.Attributs
-                .Where(e => name == "*" ? true : e.Name.ToLower().Contains(name.ToLower()))
-.Where(e => min == 0 ? true : e.Min == min)
-.Where(e => max == 0 ? true : e.Max == max)
-.Where(e => attributTypeId == 0 ? true : e.AttributTypeId == attributTypeId)
-.Where(e => categoryId == 0 ? true : e.CategoryId == categoryId)
-
-                ;
-
-            int count = await q.CountAsync();
-
-            var list = await q.OrderByName<Attribut>(sortBy, sortDir == "desc")
-                .Skip(startIndex)
-                .Take(pageSize)
-                
-                .Select(e => new 
-{
-id = e.Id,
-name = e.Name,
-description = e.Description,
-min = e.Min,
-max = e.Max,
-extra = e.Extra,
-attributTypeId = e.AttributTypeId,
-categoryId = e.CategoryId,
-
-})
-                .ToListAsync()
-                ;
-
-            return Ok(new { list = list, count = count });
-        }
-
-
-        [HttpGet]
-        public override async Task<IActionResult> Get()
-        {
-            var list = await _context.Attributs.OrderByName<Attribut>("Id").ToListAsync();
-
-            return Ok(list);
-        }
-
         
         [HttpGet("{id}")]
-        public override async Task<IActionResult> Get(int id)
+        public override async Task<IActionResult> GetById(int id)
         {
-            var model = await _context.Attributs.FindAsync(id);
+            var model = await _context.Attributs.Where(e => e.Id == id)
+                .FirstOrDefaultAsync();
+                ;
 
             if (model == null)
             {
@@ -75,63 +31,6 @@ categoryId = e.CategoryId,
             }
 
             return Ok(model);
-        }
-
-        [HttpPost]
-        public override async Task<IActionResult> Add(Attribut model)
-        {
-            _context.Attributs.Add(model);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            return Ok(model);
-        }
-
-        
-        [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] Attribut model)
-        {
-            _context.Entry(model).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public override async Task<IActionResult> Delete(int id)
-        {
-            var model = await _context.Attributs.FindAsync(id);
-            if (model == null)
-            {
-                return NotFound();
-            }
-
-            _context.Attributs.Remove(model);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            return Ok();
         }
     }
 }
