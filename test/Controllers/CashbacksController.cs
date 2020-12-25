@@ -14,24 +14,34 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class CashbacksController : SuperController<Cashback>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public CashbacksController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{from}/{applyFrom}/{percent}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, int from, int applyFrom, int percent)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.Cashbacks
+                .Where(e => from == 0 ? true : e.From == from)
+.Where(e => applyFrom == 0 ? true : e.ApplyFrom == applyFrom)
+.Where(e => percent == 0 ? true : e.Percent == percent)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<Cashback>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+from = e.From,
+applyFrom = e.ApplyFrom,
+percent = e.Percent,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +52,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.Cashbacks.OrderByName<Cashback>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +61,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Cashbacks.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +72,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(Cashback model)
         {
-            _context.MyModels.Add(model);
+            _context.Cashbacks.Add(model);
 
             try
             {
@@ -80,7 +90,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] Cashback model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +109,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Cashbacks.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.Cashbacks.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

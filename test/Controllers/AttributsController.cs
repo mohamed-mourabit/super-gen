@@ -14,24 +14,40 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class AttributsController : SuperController<Attribut>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public AttributsController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{name}/{min}/{max}/{attributTypeId}/{categoryId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string name, int min, int max, int attributTypeId, int categoryId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.Attributs
+                .Where(e => name == "*" ? true : e.Name.ToLower().Contains(name.ToLower()))
+.Where(e => min == 0 ? true : e.Min == min)
+.Where(e => max == 0 ? true : e.Max == max)
+.Where(e => attributTypeId == 0 ? true : e.AttributTypeId == attributTypeId)
+.Where(e => categoryId == 0 ? true : e.CategoryId == categoryId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<Attribut>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+name = e.Name,
+description = e.Description,
+min = e.Min,
+max = e.Max,
+extra = e.Extra,
+attributTypeId = e.AttributTypeId,
+categoryId = e.CategoryId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +58,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.Attributs.OrderByName<Attribut>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +67,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Attributs.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +78,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(Attribut model)
         {
-            _context.MyModels.Add(model);
+            _context.Attributs.Add(model);
 
             try
             {
@@ -80,7 +96,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] Attribut model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +115,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Attributs.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.Attributs.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

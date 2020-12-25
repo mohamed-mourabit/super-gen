@@ -79,11 +79,11 @@ export class MapHelper {
             fse.removeSync(this.configs.aspFolder)
         }
 
-        this.configs.classes.forEach(e => {
-            if (e.class.toLowerCase() === 'action') {
-                e.class = `${e.class}_`;
-            }
-        })
+        // this.configs.classes.forEach(e => {
+        //     if (e.class.toLowerCase() === 'action') {
+        //         e.class = `${e.class}_`;
+        //     }
+        // })
 
 
         const i = this.configs.classes.findIndex(e => e.class.includes('options'.toLowerCase()));

@@ -14,24 +14,36 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class ReviewsController : SuperController<Review>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public ReviewsController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{score}/{comment}/{customerId}/{productId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, int score, string comment, int customerId, int productId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.Reviews
+                .Where(e => score == 0 ? true : e.Score == score)
+.Where(e => comment == "*" ? true : e.Comment.ToLower().Contains(comment.ToLower()))
+.Where(e => customerId == 0 ? true : e.CustomerId == customerId)
+.Where(e => productId == 0 ? true : e.ProductId == productId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<Review>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+score = e.Score,
+comment = e.Comment,
+customerId = e.CustomerId,
+productId = e.ProductId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +54,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.Reviews.OrderByName<Review>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +63,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Reviews.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +74,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(Review model)
         {
-            _context.MyModels.Add(model);
+            _context.Reviews.Add(model);
 
             try
             {
@@ -80,7 +92,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] Review model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +111,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Reviews.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.Reviews.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

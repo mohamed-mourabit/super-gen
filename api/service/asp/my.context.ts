@@ -9,7 +9,7 @@ export class MyContext {
     generateTs() {
         const MYCONTEXT_CS = 'MyContext.cs';
         // else if (file === MYCONTEXT_CS) {
-        let content = fse.readFileSync(`${this.configs.pathBaseFiles}/${MYCONTEXT_CS}`, 'utf8');
+        let contentContext = fse.readFileSync(`${this.configs.pathBaseFiles}/${MYCONTEXT_CS}`, 'utf8');
         let modelBuilderEntity = '';
         let models = '';
         let dbSets = '';
@@ -17,17 +17,17 @@ export class MyContext {
 
         fse.ensureDirSync(`${this.configs.aspFolder}/Models`);
 
-        
+
         this.configs.classes.forEach(e => {
+            models = `using System;\r\nusing System.Text.Json.Serialization;\r\nusing System.Collections.Generic;\r\nnamespace Models\r\n{\r\npublic partial class ${this.helper.Cap(e.class)} \r\n{`;
+
             const cap = this.helper.Cap(e.class);
             let dbsets = cap.endsWith('s') ? `${cap}es` : cap.endsWith('y') ? `${cap.slice(0, -1)}ies` : `${cap}s`;
 
-            dbSets += `public virtual DbSet<${this.helper.Cap(e.class)}> ${dbsets}s { get; set; } \r\n`;
+            dbSets += `public virtual DbSet<${this.helper.Cap(e.class)}> ${dbsets.replace('_', '')} { get; set; } \r\n`;
 
             modelBuilderEntity += `modelBuilder.Entity<${this.helper.Cap(e.class)}>(entity => \r\n{`;
 
-
-            models = `using System;\r\nusing System.Collections.Generic;\r\nnamespace Models\r\n{\r\npublic partial class ${this.helper.Cap(e.class)} \r\n{`;
             // let l = [];
 
             e.properties.forEach(p => {
@@ -52,19 +52,25 @@ export class MyContext {
                     if (p.type.includes('[]')) {
                         // const pr: { name: string, type: string } = this.helper.getNameFor_withOne_ef_relation(e.class, p, this.configs.classes);
                         // console.log(pr)
-                        modelBuilderEntity += `entity.HasMany(e => e.${this.helper.Cap(p.name)}).WithOne(p => p.${this.helper.Cap(e.class)}).HasForeignKey(e => e.${this.helper.Cap(e.class)}Id).OnDelete(DeleteBehavior.Cascade);\r\n`;
-
                         let cls = p.type.replace('[]', '');
 
-                        cls = cls.toLowerCase() !== 'action' ? cls : cls + '_';
+                        // cls = cls.toLowerCase() !== 'action' ? cls : cls + '_';
+                        if (p.name.toLowerCase().endsWith('many$')) {
+                            modelBuilderEntity += `entity.HasMany(e => e.${this.helper.Cap(p.name.replace('Many$', ''))}).WithMany(p => p.${dbsets.replace('_', '')});\r\n`;
 
-                        models += `public virtual ICollection<${this.helper.Cap(cls)}> ${this.helper.Cap(p.name)} { get; set; }\r\n`;
+                            models += `[JsonIgnore]\r\npublic virtual ICollection<${this.helper.Cap(cls)}> ${this.helper.Cap(p.name.replace('Many$', ''))} { get; set; }\r\n`;
+                        } else {
+                            modelBuilderEntity += `entity.HasMany(e => e.${this.helper.Cap(p.name)}).WithOne(p => p.${this.helper.Cap(e.class.replace('_', ''))}).HasForeignKey(e => e.${this.helper.Cap(e.class.replace('_', ''))}Id).OnDelete(DeleteBehavior.Cascade);\r\n`;
+
+                            models += `[JsonIgnore]\r\npublic virtual ICollection<${this.helper.Cap(cls)}> ${this.helper.Cap(p.name)} { get; set; }\r\n`;
+                        }
+
                     } else {
-                        const pr: { name: string, type: string } = this.helper.getNameFor_HasOne_ef_relation(e.class, p, this.configs.classes);
+                        // const pr: { name: string, type: string } = this.helper.getNameFor_HasOne_ef_relation(e.class, p, this.configs.classes);
 
-                        modelBuilderEntity += `entity.HasOne(e => e.${this.helper.Cap(p.name)}).WithMany(e => e.${dbsets}).HasForeignKey(e => e.${this.helper.Cap(p.name)}Id);\r\n`;
+                        modelBuilderEntity += `entity.HasOne(e => e.${this.helper.Cap(p.name)}).WithMany(e => e.${dbsets.replace('_', '')}).HasForeignKey(e => e.${this.helper.Cap(p.name.replace('_', ''))}Id);\r\n`;
 
-                        models += `public virtual ${this.helper.Cap(p.type !== 'any' ? p.type : p.name)} ${this.helper.Cap(p.name)} { get; set; }\r\n`;
+                        models += `[JsonIgnore]\r\npublic virtual ${this.helper.Cap(p.type !== 'any' ? p.type : p.name)} ${this.helper.Cap(p.name)} { get; set; }\r\n`;
                     }
                 }
 
@@ -80,12 +86,12 @@ export class MyContext {
             fse.writeFileSync(`${this.configs.aspFolder}/Models/${this.helper.Cap(e.class)}.cs`, models);
         });
         // content = content.replace('/*{imports}*/', imports);
-        content = content.replace('/*{entities}*/', modelBuilderEntity);
-        content = content.replace('/*{dbSets}*/', dbSets);
-        content = content.replace('/*{seedClass}*/', seedClass);
+        contentContext = contentContext.replace('/*{entities}*/', modelBuilderEntity);
+        contentContext = contentContext.replace('/*{dbSets}*/', dbSets);
+        contentContext = contentContext.replace('/*{seedClass}*/', seedClass);
         // write content in new location
 
-        fse.writeFileSync(`${this.configs.aspFolder}/Models/${MYCONTEXT_CS}`, content);
+        fse.writeFileSync(`${this.configs.aspFolder}/Models/${MYCONTEXT_CS}`, contentContext);
         this.helper.progress(`>> ${MYCONTEXT_CS} done`);
 
         // create models

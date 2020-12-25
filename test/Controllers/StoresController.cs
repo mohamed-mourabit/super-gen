@@ -14,24 +14,42 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class StoresController : SuperController<Store>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public StoresController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{name}/{phone}/{email}/{address}/{gps}/{shopId}/{cityId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string name, string phone, string email, string address, string gps, int shopId, int cityId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.Stores
+                .Where(e => name == "*" ? true : e.Name.ToLower().Contains(name.ToLower()))
+.Where(e => phone == "*" ? true : e.Phone.ToLower().Contains(phone.ToLower()))
+.Where(e => email == "*" ? true : e.Email.ToLower().Contains(email.ToLower()))
+.Where(e => address == "*" ? true : e.Address.ToLower().Contains(address.ToLower()))
+.Where(e => gps == "*" ? true : e.Gps.ToLower().Contains(gps.ToLower()))
+.Where(e => shopId == 0 ? true : e.ShopId == shopId)
+.Where(e => cityId == 0 ? true : e.CityId == cityId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<Store>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+name = e.Name,
+phone = e.Phone,
+email = e.Email,
+address = e.Address,
+gps = e.Gps,
+shopId = e.ShopId,
+cityId = e.CityId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +60,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.Stores.OrderByName<Store>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +69,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Stores.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +80,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(Store model)
         {
-            _context.MyModels.Add(model);
+            _context.Stores.Add(model);
 
             try
             {
@@ -80,7 +98,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] Store model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +117,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Stores.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.Stores.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

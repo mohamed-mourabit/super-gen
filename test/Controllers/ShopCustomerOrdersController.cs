@@ -14,24 +14,36 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class ShopCustomerOrdersController : SuperController<ShopCustomerOrder>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public ShopCustomerOrdersController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{date}/{customerId}/{shopId}/{orderId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string date, int customerId, int shopId, int orderId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.ShopCustomerOrders
+                .Where(e => date == "*" ? true : e.Date.ToLower().Contains(date.ToLower()))
+.Where(e => customerId == 0 ? true : e.CustomerId == customerId)
+.Where(e => shopId == 0 ? true : e.ShopId == shopId)
+.Where(e => orderId == 0 ? true : e.OrderId == orderId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<ShopCustomerOrder>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+date = e.Date,
+customerId = e.CustomerId,
+shopId = e.ShopId,
+orderId = e.OrderId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +54,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.ShopCustomerOrders.OrderByName<ShopCustomerOrder>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +63,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.ShopCustomerOrders.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +74,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(ShopCustomerOrder model)
         {
-            _context.MyModels.Add(model);
+            _context.ShopCustomerOrders.Add(model);
 
             try
             {
@@ -80,7 +92,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] ShopCustomerOrder model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +111,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.ShopCustomerOrders.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.ShopCustomerOrders.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

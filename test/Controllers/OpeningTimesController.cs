@@ -14,24 +14,34 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class OpeningTimesController : SuperController<OpeningTime>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public OpeningTimesController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{day}/{shopId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string day, int shopId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.OpeningTimes
+                .Where(e => day == "*" ? true : e.Day.ToLower().Contains(day.ToLower()))
+.Where(e => shopId == 0 ? true : e.ShopId == shopId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<OpeningTime>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+day = e.Day,
+startTime = e.StartTime,
+endTime = e.EndTime,
+shopId = e.ShopId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +52,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.OpeningTimes.OrderByName<OpeningTime>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +61,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.OpeningTimes.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +72,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(OpeningTime model)
         {
-            _context.MyModels.Add(model);
+            _context.OpeningTimes.Add(model);
 
             try
             {
@@ -80,7 +90,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] OpeningTime model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +109,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.OpeningTimes.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.OpeningTimes.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

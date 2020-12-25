@@ -14,24 +14,43 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class UsersController : SuperController<User>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public UsersController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{email}/{username}/{lastname}/{firstname}/{token}/{languageId}/{roleId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string email, string username, string lastname, string firstname, string token, int languageId, int roleId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.Users
+                .Where(e => email == "*" ? true : e.Email.ToLower().Contains(email.ToLower()))
+.Where(e => username == "*" ? true : e.Username.ToLower().Contains(username.ToLower()))
+.Where(e => lastname == "*" ? true : e.Lastname.ToLower().Contains(lastname.ToLower()))
+.Where(e => firstname == "*" ? true : e.Firstname.ToLower().Contains(firstname.ToLower()))
+.Where(e => token == "*" ? true : e.Token.ToLower().Contains(token.ToLower()))
+.Where(e => languageId == 0 ? true : e.LanguageId == languageId)
+.Where(e => roleId == 0 ? true : e.RoleId == roleId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<User>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+email = e.Email,
+password = e.Password,
+username = e.Username,
+lastname = e.Lastname,
+firstname = e.Firstname,
+token = e.Token,
+languageId = e.LanguageId,
+roleId = e.RoleId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +61,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.Users.OrderByName<User>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +70,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Users.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +81,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(User model)
         {
-            _context.MyModels.Add(model);
+            _context.Users.Add(model);
 
             try
             {
@@ -80,7 +99,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] User model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +118,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Users.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.Users.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

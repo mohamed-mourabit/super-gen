@@ -33,7 +33,7 @@ export class ClassController {
 
                     if (!isID && !isDate && !isBool && !isImage && !isDescription && !isPassword) {
                         // special case
-                        const name = p.name !== 'action' ? p.name : 'action_';
+                        const name = p.name; // !== 'action' ? p.name : 'action_';
                         // console.log(name)
                         params += `/{${name}}`;
                         params2 += `${p.type === 'number' ? 'int' : p.type} ${name}, `;
@@ -69,7 +69,12 @@ export class ClassController {
             newContent = newContent.replace('/*{includes}*/', includes);
             newContent = newContent.replace('/*{select}*/', select);
 
-            newContent = newContent.replace(/UserX/g, this.helper.Cap(e.class));
+            newContent = newContent.replace(/MyModel\$/g, this.helper.Cap(e.class));
+
+            let cap = this.helper.Cap(e.class.replace('_', ''));
+            let myModels = cap.endsWith('s') ? `${cap}es` : cap.endsWith('y') ? `${cap.slice(0, -1)}ies` : `${cap}s`;
+
+            newContent = newContent.replace(/MyModels/g, myModels);
 
             // if (e.properties.length >= 5) {
             //     content = content.replace(/\/\/\>State/g, '');
@@ -84,7 +89,7 @@ export class ClassController {
 
             fse.ensureDirSync(`${this.configs.aspFolder}/Controllers`);
 
-            fse.writeFileSync(`${this.configs.aspFolder}/Controllers/${this.helper.Cap(e.class)}Controller.cs`, newContent);
+            fse.writeFileSync(`${this.configs.aspFolder}/Controllers/${myModels}Controller.cs`, newContent);
             this.helper.progress(`>> ${this.helper.Cap(e.class)}Controller.cs done`);
         });
 

@@ -14,24 +14,42 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class ProductVariantCartsController : SuperController<ProductVariantCart>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public ProductVariantCartsController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{logoUrl}/{quantity}/{selectedAttributItems}/{selectedVariants}/{discount}/{product}/{cartId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string logoUrl, int quantity, string selectedAttributItems, string selectedVariants, string discount, string product, int cartId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.ProductVariantCarts
+                .Where(e => logoUrl == "*" ? true : e.LogoUrl.ToLower().Contains(logoUrl.ToLower()))
+.Where(e => quantity == 0 ? true : e.Quantity == quantity)
+.Where(e => selectedAttributItems == "*" ? true : e.SelectedAttributItems.ToLower().Contains(selectedAttributItems.ToLower()))
+.Where(e => selectedVariants == "*" ? true : e.SelectedVariants.ToLower().Contains(selectedVariants.ToLower()))
+.Where(e => discount == "*" ? true : e.Discount.ToLower().Contains(discount.ToLower()))
+.Where(e => product == "*" ? true : e.Product.ToLower().Contains(product.ToLower()))
+.Where(e => cartId == 0 ? true : e.CartId == cartId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<ProductVariantCart>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+logoUrl = e.LogoUrl,
+quantity = e.Quantity,
+selectedAttributItems = e.SelectedAttributItems,
+selectedVariants = e.SelectedVariants,
+discount = e.Discount,
+product = e.Product,
+cartId = e.CartId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +60,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.ProductVariantCarts.OrderByName<ProductVariantCart>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +69,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.ProductVariantCarts.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +80,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(ProductVariantCart model)
         {
-            _context.MyModels.Add(model);
+            _context.ProductVariantCarts.Add(model);
 
             try
             {
@@ -80,7 +98,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] ProductVariantCart model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +117,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.ProductVariantCarts.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.ProductVariantCarts.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

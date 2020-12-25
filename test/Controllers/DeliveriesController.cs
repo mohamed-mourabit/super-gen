@@ -14,24 +14,47 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class DeliveriesController : SuperController<Delivery>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public DeliveriesController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{from}/{to}/{freeFrom}/{radius}/{minOrderPrice}/{price}/{deliveryTime}/{deliveryModeId}/{shopId}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, int from, int to, int freeFrom, int radius, int minOrderPrice, int price, int deliveryTime, int deliveryModeId, int shopId)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.Deliveries
+                .Where(e => from == 0 ? true : e.From == from)
+.Where(e => to == 0 ? true : e.To == to)
+.Where(e => freeFrom == 0 ? true : e.FreeFrom == freeFrom)
+.Where(e => radius == 0 ? true : e.Radius == radius)
+.Where(e => minOrderPrice == 0 ? true : e.MinOrderPrice == minOrderPrice)
+.Where(e => price == 0 ? true : e.Price == price)
+.Where(e => deliveryTime == 0 ? true : e.DeliveryTime == deliveryTime)
+.Where(e => deliveryModeId == 0 ? true : e.DeliveryModeId == deliveryModeId)
+.Where(e => shopId == 0 ? true : e.ShopId == shopId)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<Delivery>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+downtown = e.Downtown,
+from = e.From,
+to = e.To,
+freeFrom = e.FreeFrom,
+radius = e.Radius,
+minOrderPrice = e.MinOrderPrice,
+price = e.Price,
+deliveryTime = e.DeliveryTime,
+deliveryModeId = e.DeliveryModeId,
+shopId = e.ShopId,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +65,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.Deliveries.OrderByName<Delivery>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +74,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Deliveries.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +85,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(Delivery model)
         {
-            _context.MyModels.Add(model);
+            _context.Deliveries.Add(model);
 
             try
             {
@@ -80,7 +103,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] Delivery model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +122,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Deliveries.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.Deliveries.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

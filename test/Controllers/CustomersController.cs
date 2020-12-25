@@ -14,24 +14,39 @@ namespace Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class MyModelsController : SuperController<MyModel$>
+    public class CustomersController : SuperController<Customer>
     {
-        public MyModelsController(MyContext context ) : base(context) { }
+        public CustomersController(MyContext context ) : base(context) { }
 
-        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/*{params}*/")]
-        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, /*{params2}*/)
+        [HttpGet("{startIndex}/{pageSize}/{sortBy}/{sortDir}/{firstname}/{lastname}/{email}/{phone}/{cashback}")]
+        public async Task<IActionResult> GetAll(int startIndex, int pageSize, string sortBy, string sortDir, string firstname, string lastname, string email, string phone, int cashback)
         {
-            var q = _context.MyModels
-                /*{whereClause}*/
+            var q = _context.Customers
+                .Where(e => firstname == "*" ? true : e.Firstname.ToLower().Contains(firstname.ToLower()))
+.Where(e => lastname == "*" ? true : e.Lastname.ToLower().Contains(lastname.ToLower()))
+.Where(e => email == "*" ? true : e.Email.ToLower().Contains(email.ToLower()))
+.Where(e => phone == "*" ? true : e.Phone.ToLower().Contains(phone.ToLower()))
+.Where(e => cashback == 0 ? true : e.Cashback == cashback)
+
                 ;
 
             int count = await q.CountAsync();
 
-            var list = await q.OrderByName<MyModel$>(sortBy, sortDir == "desc")
+            var list = await q.OrderByName<Customer>(sortBy, sortDir == "desc")
                 .Skip(startIndex)
                 .Take(pageSize)
-                /*{includes}*/
-                /*{select}*/
+                
+                .Select(e => new 
+{
+id = e.Id,
+firstname = e.Firstname,
+lastname = e.Lastname,
+email = e.Email,
+phone = e.Phone,
+subscriptionDate = e.SubscriptionDate,
+cashback = e.Cashback,
+
+})
                 .ToListAsync()
                 ;
 
@@ -42,7 +57,7 @@ namespace Controllers
         [HttpGet]
         public override async Task<IActionResult> Get()
         {
-            var list = await _context.MyModels.OrderByName<MyModel$>("Id").ToListAsync();
+            var list = await _context.Customers.OrderByName<Customer>("Id").ToListAsync();
 
             return Ok(list);
         }
@@ -51,7 +66,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Customers.FindAsync(id);
 
             if (model == null)
             {
@@ -62,9 +77,9 @@ namespace Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Add(MyModel$ model)
+        public override async Task<IActionResult> Add(Customer model)
         {
-            _context.MyModels.Add(model);
+            _context.Customers.Add(model);
 
             try
             {
@@ -80,7 +95,7 @@ namespace Controllers
 
         
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] MyModel$ model)
+        public override async Task<IActionResult> Update([FromRoute] int id, [FromBody] Customer model)
         {
             _context.Entry(model).State = EntityState.Modified;
 
@@ -99,13 +114,13 @@ namespace Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var model = await _context.MyModels.FindAsync(id);
+            var model = await _context.Customers.FindAsync(id);
             if (model == null)
             {
                 return NotFound();
             }
 
-            _context.MyModels.Remove(model);
+            _context.Customers.Remove(model);
             try
             {
                 await _context.SaveChangesAsync();

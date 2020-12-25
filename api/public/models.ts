@@ -1,4 +1,4 @@
-export class Action {
+export class _Action {
   id: number;
   date: Date;
   orderId: number;
@@ -35,7 +35,7 @@ export class _Address {
   orders: Order[]; //Migration
 }
 
-export class AffetationType {
+export class AffectationType {
   id: number;
   value: number;
   discounts: Array<Discount>; //Migration
@@ -68,7 +68,7 @@ export class Attribut {
   categoryId: number;
   category: Category;
 
-  products: Array<Product>; //Migration
+  productsMany$: Array<Product>; //Migration
   variants: Array<Variant>; //Extra=true
   attributItems: AttributItem[];
 }
@@ -117,16 +117,16 @@ export class Category {
   additionalFeeId: number;
   additionalFee: AdditionalFee; //Migration
 
-  products: Product[];  //Migration
+  productsMany$: Product[];  //Migration
   attributs: Array<Attribut>;
-  partners: Partner[];
+  partnersMany$: Partner[];
 }
 
 export class Partner {
   id: number;
   email: string;
 
-  categories: Category[];
+  categoriesMany$: Category[];
 }
 
 export class City {
@@ -136,8 +136,9 @@ export class City {
   regionId: number;
   region: Region;
 
-  deliveries: Delivery[];     //Migration
+  deliveriesMany$: Delivery[];     //Migration
   stores: Store[];    //Migration
+  addresses: _Address[];    //Migration
 }
 
 export class Customer {
@@ -153,7 +154,7 @@ export class Customer {
 
   addresses: Array<_Address>;
   shopCustomerOrders: ShopCustomerOrder[];//Migration
-  products: Product[];//Migration
+  productsMany$: Product[];//Migration
   reviews: Review[];//Migration maybe
 }
 
@@ -187,7 +188,7 @@ export class Delivery {
   shopId: number;
   shop: Shop;//Migration
 
-  cities: City[];
+  citiesMany$: City[];
 }
 
 export class DiscountType {
@@ -210,7 +211,7 @@ export class Discount {
   shops: Shop[];//Migration
 
   affectationTypeId: number;
-  affectationType: AffetationType;
+  affectationType: AffectationType;
 
   discountTypeId: number;
   discountType: DiscountType;
@@ -224,7 +225,7 @@ export class Language {
   id: number;
   value: string;
 
-  userCredentials: UserCredential[];//Migration
+  userCredentials: User[];//Migration
 
 }
 
@@ -244,7 +245,7 @@ export class OrderStatus {
   value: string;
   sequence: number;
   orders: Order[];//Migration
-
+  actions: _Action[];//Migration
 }
 
 export class Order {
@@ -275,10 +276,10 @@ export class Order {
   orderStatusId: number;
   orderStatus: OrderStatus;
 
-  paymentMethodId: string;
+  paymentMethodId: number;
   paymentMethod: PaymentMethod;
 
-  actions: Array<Action>;
+  actions: Array<_Action>;
   shopCustomerOrders: ShopCustomerOrder[];//Migration
 }
 
@@ -287,7 +288,7 @@ export class PaymentMethod {
   type: string;
   active: boolean;
 
-  shops: Shop[]; //Migration
+  shopsMany$: Shop[]; //Migration
   orders: Order[]; //Migration
 }
 
@@ -341,8 +342,8 @@ export class Product {
   suggestOnly: boolean;
   ddOrder: number;
 
-  parrentProductId: string;
-  parrentProduct: Product;//Migration
+  parentProductId: number;
+  parentProduct: Product;//Migration
   childreProducts: Product[];
 
   frontLine: boolean;
@@ -361,18 +362,18 @@ export class Product {
   brandId: number;
   brand: Brand;
 
-  discountId: string;
+  discountId: number;
   discount: Discount;
 
   shopId: number;
   shop: Shop;//Migration
 
+  
   pictures: Array<Picture>;
-  attributs: Array<Attribut>;
-  categories: Array<Category>;
-
-  productAttributVariants: ProductAttributsVariant[];//Migration
-  customer: Customer[];//Migration
+  attributsMany$: Array<Attribut>;
+  categoriesMany$: Array<Category>;
+  productAttributsVariants: ProductAttributsVariant[];//Migration
+  customersMany$: Customer[];//Migration
   reviews: Review[];//Migration maybe
 }
 
@@ -458,10 +459,10 @@ export class Shop {
   categories: Array<Category>;
   products: Array<Product>;
   stores: Array<Store>; 
-  deliveryMans: Array<DeliveryMan>;
+  deliveryMansMany$: Array<DeliveryMan>;
   deliveries: Array<Delivery>;
-  paymentMethods: Array<PaymentMethod>;
-  shopCustomerOrders: ShopCustomerOrder;
+  paymentMethodsMany$: Array<PaymentMethod>;
+  shopCustomerOrders: ShopCustomerOrder[];
 }
 
 export class DeliveryMan {
@@ -471,7 +472,7 @@ export class DeliveryMan {
   tel: string;
 
   orders: Order[];
-  shops: Shop[];//Migration
+  shopsMany$: Shop[];//Migration
 }
 
 export class Store {
@@ -509,7 +510,7 @@ export class Unit {
   shop: Shop;//Migration
 }
 
-export class UserCredential {
+export class User {
   id: number;
   email: string;
   password: string;
@@ -519,20 +520,29 @@ export class UserCredential {
   token: string;
 
   //Credentials
-  admin: boolean;
-  shop: boolean;
-  customer: boolean;
-  deliveryMan: boolean;
-  phone: string;
-  reseller: boolean;
-  approvingShop: boolean;
-  partner: boolean;
+  // admin: boolean;
+  // shop: boolean;
+  // customer: boolean;
+  // deliveryMan: boolean;
+  // phone: string;
+  // reseller: boolean;
+  // approvingShop: boolean;
+  // partner: boolean;
   //End Credentials 
 
   languageId: number;
   language: Language;
-}
 
+  roleId: number;
+  role: Role;
+  
+}
+export class Role {
+  id: number;
+  value: number;
+
+  users: User[];
+}
 export class Variant {
   id: number;
   name: string;
