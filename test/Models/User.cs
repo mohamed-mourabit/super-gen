@@ -17,5 +17,7 @@ public virtual Language Language { get; set; }
 public int RoleId { get; set; }
 [JsonIgnore]
 public virtual Role Role { get; set; }
+[JsonIgnore]
+public virtual ICollection<DiscountUser> DiscountUsers { get; set; }
 }
 }

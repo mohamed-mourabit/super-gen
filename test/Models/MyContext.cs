@@ -6,7 +6,9 @@ namespace Models
     {
         public MyContext(DbContextOptions<MyContext> options) : base(options) { }
 
-        public virtual DbSet<_Action> Actions { get; set; } 
+        public virtual DbSet<Page> Pages { get; set; } 
+public virtual DbSet<Article> Articles { get; set; } 
+public virtual DbSet<_Action> Actions { get; set; } 
 public virtual DbSet<Activity> Activities { get; set; } 
 public virtual DbSet<AdditionalFee> AdditionalFees { get; set; } 
 public virtual DbSet<_Address> Addresses { get; set; } 
@@ -45,13 +47,35 @@ public virtual DbSet<Store> Stores { get; set; }
 public virtual DbSet<Ticket> Tickets { get; set; } 
 public virtual DbSet<Unit> Units { get; set; } 
 public virtual DbSet<User> Users { get; set; } 
+public virtual DbSet<DiscountUser> DiscountUsers { get; set; } 
 public virtual DbSet<Role> Roles { get; set; } 
 public virtual DbSet<Variant> Variants { get; set; } 
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<_Action>(entity => 
+            modelBuilder.Entity<Page>(entity => 
+{entity.HasKey(e => e.Id);
+entity.Property(e => e.Id).ValueGeneratedOnAdd();
+entity.Property(e => e.Title);
+entity.Property(e => e.Description);
+entity.Property(e => e.Slug);
+entity.Property(e => e.Active);
+entity.HasMany(e => e.Articles).WithOne(p => p.Page).HasForeignKey(e => e.PageId).OnDelete(DeleteBehavior.Cascade);
+});
+
+modelBuilder.Entity<Article>(entity => 
+{entity.HasKey(e => e.Id);
+entity.Property(e => e.Id).ValueGeneratedOnAdd();
+entity.Property(e => e.Title);
+entity.Property(e => e.Content);
+entity.Property(e => e.Active);
+entity.Property(e => e.Slug);
+entity.Property(e => e.PageId);
+entity.HasOne(e => e.Page).WithMany(e => e.Articles).HasForeignKey(e => e.PageId);
+});
+
+modelBuilder.Entity<_Action>(entity => 
 {entity.HasKey(e => e.Id);
 entity.Property(e => e.Id).ValueGeneratedOnAdd();
 entity.Property(e => e.Date);
@@ -263,6 +287,7 @@ entity.Property(e => e.DiscountTypeId);
 entity.HasOne(e => e.DiscountType).WithMany(e => e.Discounts).HasForeignKey(e => e.DiscountTypeId);
 entity.HasMany(e => e.Products).WithOne(p => p.Discount).HasForeignKey(e => e.DiscountId).OnDelete(DeleteBehavior.Cascade);
 entity.HasMany(e => e.Categories).WithOne(p => p.Discount).HasForeignKey(e => e.DiscountId).OnDelete(DeleteBehavior.Cascade);
+entity.HasMany(e => e.DiscountUsers).WithOne(p => p.Discount).HasForeignKey(e => e.DiscountId).OnDelete(DeleteBehavior.Cascade);
 });
 
 modelBuilder.Entity<Language>(entity => 
@@ -540,6 +565,14 @@ entity.Property(e => e.LanguageId);
 entity.HasOne(e => e.Language).WithMany(e => e.Users).HasForeignKey(e => e.LanguageId);
 entity.Property(e => e.RoleId);
 entity.HasOne(e => e.Role).WithMany(e => e.Users).HasForeignKey(e => e.RoleId);
+entity.HasMany(e => e.DiscountUsers).WithOne(p => p.User).HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+});
+
+modelBuilder.Entity<DiscountUser>(entity => 
+{entity.Property(e => e.UserId);
+entity.Property(e => e.DiscountId);
+entity.HasOne(e => e.User).WithMany(e => e.DiscountUsers).HasForeignKey(e => e.UserId);
+entity.HasOne(e => e.Discount).WithMany(e => e.DiscountUsers).HasForeignKey(e => e.DiscountId);
 });
 
 modelBuilder.Entity<Role>(entity => 
@@ -571,6 +604,7 @@ entity.HasMany(e => e.ProductAttributsVariants).WithOne(p => p.Variant).HasForei
             modelBuilder
                 .Variants()
 .Roles()
+.DiscountUsers()
 .Users()
 .Units()
 .Tickets()
@@ -610,6 +644,8 @@ entity.HasMany(e => e.ProductAttributsVariants).WithOne(p => p.Variant).HasForei
 .AdditionalFees()
 .Activitys()
 ._Actions()
+.Articles()
+.Pages()
 
                 ;
         }

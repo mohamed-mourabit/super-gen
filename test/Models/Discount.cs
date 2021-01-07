@@ -25,5 +25,7 @@ public virtual DiscountType DiscountType { get; set; }
 public virtual ICollection<Product> Products { get; set; }
 [JsonIgnore]
 public virtual ICollection<Category> Categories { get; set; }
+[JsonIgnore]
+public virtual ICollection<DiscountUser> DiscountUsers { get; set; }
 }
 }

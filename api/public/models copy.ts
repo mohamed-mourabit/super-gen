@@ -89,7 +89,7 @@ export class Attribut {
   categoryId: number;
   category: Category;
 
-  productsMany$: Array<Product>; //Migration
+  productAttribut: ProductAttribut[] = []; //Migration
   variants: Array<Variant>; //Extra=true
   attributItems: AttributItem[];
 }
@@ -138,7 +138,7 @@ export class Category {
   additionalFeeId: number;
   additionalFee: AdditionalFee; //Migration
 
-  productsMany$: Product[];  //Migration
+  productCategories: ProductCategory[] = []; //Migration
   attributs: Array<Attribut>;
   partnersMany$: Partner[];
 }
@@ -240,7 +240,6 @@ export class Discount {
   products: Product[];//Migration
   categories: Category[];//Migration
 
-  discountUsers: DiscountUser[] = [];
 }
 
 export class Language {
@@ -310,7 +309,7 @@ export class PaymentMethod {
   type: string;
   active: boolean;
 
-  shopsMany$: Shop[]; //Migration
+  shopPayementMethods: ShopPayementMethod[] = []; //Migration
   orders: Order[]; //Migration
 }
 
@@ -392,11 +391,35 @@ export class Product {
 
   
   pictures: Array<Picture>;
-  attributsMany$: Array<Attribut>;
-  categoriesMany$: Array<Category>;
+  productAttribut: ProductAttribut[] = [];
+  productCategories: ProductCategory[] = [];
   productAttributsVariants: ProductAttributsVariant[];//Migration
-  customersMany$: Customer[];//Migration
+  favories: Favory[] = [];//Migration
   reviews: Review[];//Migration maybe
+}
+
+export class Favory {
+  productId = 0;
+  customerId = 0;
+
+  product = new Product();
+  customer = new Customer();
+}
+
+export class ProductCategory {
+  productId = 0;
+  categoryId = 0;
+
+  product = new Product();
+  category = new Category();
+}
+
+export class ProductAttribut {
+  productId = 0;
+  attributId = 0;
+
+  product = new Product();
+  attribut = new Attribut();
 }
 
 export class Region {
@@ -483,8 +506,16 @@ export class Shop {
   stores: Array<Store>; 
   deliveryMansMany$: Array<DeliveryMan>;
   deliveries: Array<Delivery>;
-  paymentMethodsMany$: Array<PaymentMethod>;
+  shopPayementMethods: ShopPayementMethod[] = [];
   shopCustomerOrders: ShopCustomerOrder[];
+}
+
+export class ShopPayementMethod {
+  orderId = 0;
+  paymentMethodId = 0;
+
+  order = new Order();
+  paymentMethod = new PaymentMethod();
 }
 
 export class DeliveryMan {
@@ -541,21 +572,23 @@ export class User {
   firstname: string;
   token: string;
 
+  //Credentials
+  // admin: boolean;
+  // shop: boolean;
+  // customer: boolean;
+  // deliveryMan: boolean;
+  // phone: string;
+  // reseller: boolean;
+  // approvingShop: boolean;
+  // partner: boolean;
+  //End Credentials 
+
   languageId: number;
   language: Language;
 
   roleId: number;
   role: Role;
   
-  discountUsers: DiscountUser[] = [];
-}
-
-export class DiscountUser {
-  userId = 0;
-  discountId = 0;
-
-  user = new User();
-  discount = new Discount();
 }
 export class Role {
   id: number;

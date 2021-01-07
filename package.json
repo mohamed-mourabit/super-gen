@@ -22,7 +22,7 @@
     "b": "set IS_DEV=development && node --require ts-node/register ./server.ts",
     "w": "set IS_DEV=development &&  && nodemon --ignore 'generation/*.ts' ./script.ts",
     "s": "set IS_DEV=development && node --require ts-node/register ./script.ts",
-    "m": "set IS_DEV=development && node --require ts-node/register ./api/service/main.ts isdev",
+    "m": "set IS_DEV=development && node --require ts-node/register ./main.ts isdev",
     "db": "cd database-scripte && nodemon database.script2.ts",
     "ec0": "cd database-scripte && nodemon readExcelDepot.ts",
     "ec": "cd database-scripte && nodemon readExcelEmplisseurs.ts",

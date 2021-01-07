@@ -38,6 +38,18 @@ modelBuilder.Entity<Role>().HasData(faker.Generate(10));
 return modelBuilder;
 }
 
+public static ModelBuilder DiscountUsers(this ModelBuilder modelBuilder)
+                    {
+                    int id = 1;
+                    var faker = new Faker<DiscountUser>(DataSeeding.lang)
+                        .CustomInstantiator(f => new DiscountUser { Id = id++ })
+.RuleFor(o => o.UserId, f => f.Random.Number(1, 10))
+.RuleFor(o => o.DiscountId, f => f.Random.Number(1, 10))
+;
+modelBuilder.Entity<DiscountUser>().HasData(faker.Generate(10));
+return modelBuilder;
+}
+
 public static ModelBuilder Users(this ModelBuilder modelBuilder)
                     {
                     int id = 1;
@@ -620,6 +632,35 @@ public static ModelBuilder _Actions(this ModelBuilder modelBuilder)
 .RuleFor(o => o.OrderStatusId, f => f.Random.Number(1, 10))
 ;
 modelBuilder.Entity<_Action>().HasData(faker.Generate(10));
+return modelBuilder;
+}
+
+public static ModelBuilder Articles(this ModelBuilder modelBuilder)
+                    {
+                    int id = 1;
+                    var faker = new Faker<Article>(DataSeeding.lang)
+                        .CustomInstantiator(f => new Article { Id = id++ })
+.RuleFor(o => o.Title, f => f.Lorem.Word())
+.RuleFor(o => o.Content, f => f.Lorem.Word())
+.RuleFor(o => o.Active, f => id - 1 == 1 ? true : f.Random.Bool())
+.RuleFor(o => o.Slug, f => f.Lorem.Word())
+.RuleFor(o => o.PageId, f => f.Random.Number(1, 10))
+;
+modelBuilder.Entity<Article>().HasData(faker.Generate(10));
+return modelBuilder;
+}
+
+public static ModelBuilder Pages(this ModelBuilder modelBuilder)
+                    {
+                    int id = 1;
+                    var faker = new Faker<Page>(DataSeeding.lang)
+                        .CustomInstantiator(f => new Page { Id = id++ })
+.RuleFor(o => o.Title, f => f.Lorem.Word())
+.RuleFor(o => o.Description, f => f.Lorem.Word())
+.RuleFor(o => o.Slug, f => f.Lorem.Word())
+.RuleFor(o => o.Active, f => id - 1 == 1 ? true : f.Random.Bool())
+;
+modelBuilder.Entity<Page>().HasData(faker.Generate(10));
 return modelBuilder;
 }
 
